@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>File Upload</title>
+</head>
+<body>
+  <h2>Upload a File</h2>
+  <input type="file" id="fileInput" />
+  <button onclick="uploadFile()">Upload</button>
+
+  <h3>Uploaded Files</h3>
+  <ul id="fileList"></ul>
+
+  <script>
+    const apiBase = "https://iqazjty339.execute-api.us-east-2.amazonaws.com/prod";
+
+    async function uploadFile() {
+      const fileInput = document.getElementById('fileInput');
+      if (!fileInput.files.length) return alert("Choose a file!");
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64 = reader.result.split(',')[1];
+        const payload = {
+          fileName: file.name,
+          fileContent: base64
+        };
+
+        const res = await fetch(apiBase + "/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await res.json();
+        alert("Uploaded! URL: " + result.url);
+        listFiles();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function listFiles() {
+      const res = await fetch(apiBase + "/list");
+      const data = await res.json();
+      const ul = document.getElementById("fileList");
+      ul.innerHTML = '';
+      data.files.forEach(file => {
+        const li = document.createElement('li');
+        const link = document.createElement('a');
+        link.href = file.url || "#";
+        link.textContent = file.fileName || file;
+        link.target = "_blank";
+        li.appendChild(link);
+        ul.appendChild(li);
+      });
+    }
+
+    listFiles();
+  </script>
+</body>
+</html>
