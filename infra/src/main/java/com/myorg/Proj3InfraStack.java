@@ -35,6 +35,8 @@ public class Proj3InfraStack extends Stack {
                 .removalPolicy(RemovalPolicy.DESTROY)
                 .build();
 
+            
+
         // 2. Create the Lambda Function
         Function uploadLambda = Function.Builder.create(this, "Proj3UploadLambda")
                 .runtime(Runtime.JAVA_11)
